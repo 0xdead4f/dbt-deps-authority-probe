@@ -1,0 +1,5 @@
+name: l145d9_deps_probe
+version: '1.0'
+config-version: 2
+profile: deps_probe_profile
+model-paths: ['models']
